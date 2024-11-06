@@ -5,7 +5,6 @@ const waveSketch = (p) => {
   let centerX, centerY;
   let MAX_RADIUS;
   let explosionPhase = false;
-  let textOpacity = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -68,15 +67,8 @@ const waveSketch = (p) => {
 
       if (MAX_RADIUS > Math.max(p.width, p.height) * 2) {
         explosionPhase = false;
-        showText = false;
+        showText = true; // Habilita `showText` pero sin dibujar el texto
       }
-    } else {
-      // Mostrar el texto con un degradado de opacidad
-      textOpacity = Math.min(textOpacity + 3, 255);
-      p.fill(255, textOpacity);
-      p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(150);
-      p.text("JUANES", centerX, centerY);
     }
   };
 
