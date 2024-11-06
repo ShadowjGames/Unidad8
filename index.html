@@ -1,19 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Landing Page - PlayStation Waves</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Efecto de Ondas y Partículas</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    #wave-canvas, #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none; /* Permite que ambos se superpongan sin interferir */
+    }
+  </style>
 </head>
-  
 <body>
-  <div id="container">
-    <div id="intro-text">Loading...</div>
-    <div id="canvas-container"></div>
-  </div>
+  <!-- Contenedor para las ondas -->
+  <div id="wave-canvas"></div>
+  <!-- Contenedor para las partículas -->
+  <div id="particle-canvas"></div>
+
+  <!-- Incluir p5.js y los scripts personalizados -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
   <script src="waves.js"></script>
   <script src="particles.js"></script>
 </body>
 </html>
-
