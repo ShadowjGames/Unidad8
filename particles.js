@@ -14,8 +14,10 @@ const particleSketch = (p) => {
 
     if (!showText) {
       // Crear partículas en la posición del mouse en cada frame
-      particles.push(new Particle(p.mouseX, p.mouseY, p));
-      
+      if (p.mouseX >= 0 && p.mouseY >= 0) {
+        particles.push(new Particle(p.mouseX, p.mouseY, p));
+      }
+
       // Actualizar y mostrar partículas
       for (let i = particles.length - 1; i >= 0; i--) {
         let particle = particles[i];
