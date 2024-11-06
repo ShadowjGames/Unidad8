@@ -1,8 +1,6 @@
 const particleSketch = (p) => {
   let particles = [];
   let centerX, centerY;
-  let explosionPhase = false;
-  let showText = false;
   let textOpacity = 0;
   let letters = [];
   let links = [
@@ -46,9 +44,11 @@ const particleSketch = (p) => {
       }
       particles = particles.filter(p => !p.isDead());
 
+      // Finalizar fase de explosión y activar `showText`
       if (particles.length === 0) {
         explosionPhase = false;
         showText = true;
+        textOpacity = 0; // Reiniciar opacidad del texto
       }
     } else if (showText) {
       // Aumentar opacidad del texto suavemente
