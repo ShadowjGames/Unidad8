@@ -10,7 +10,6 @@ const waveSketch = (p) => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.angleMode(p.DEGREES);
 
-    // Colores menos brillantes y más oscuros
     ca = p.color(10, 100, 120);  // Azul oscuro
     cb = p.color(120, 20, 60);   // Rosado oscuro
 
@@ -20,12 +19,11 @@ const waveSketch = (p) => {
   };
 
   p.draw = () => {
-    p.background(0, 20); // Fondo oscuro con opacidad ligera para suavizar el efecto
+    p.background(0, 20);
 
-    // Usamos una interpolación de color más gradual
     const colorFactor = (Math.sin(zoff) + 1) / 2;
     p.stroke(p.lerpColor(ca, cb, colorFactor));
-    
+
     p.push();
     p.translate(ox, oy);
     p.beginShape();
@@ -41,7 +39,7 @@ const waveSketch = (p) => {
     p.endShape(p.CLOSE);
     p.pop();
 
-    zoff += 0.003; // Ajuste menor para hacer el cambio aún más gradual
+    zoff += 0.003;
   };
 
   p.windowResized = () => {
@@ -49,5 +47,5 @@ const waveSketch = (p) => {
   };
 };
 
-// Crear instancia de p5 para las ondas
-new p5(waveSketch, "canvas-container");
+// Instancia para el contenedor de las ondas
+new p5(waveSketch, "wave-canvas");
