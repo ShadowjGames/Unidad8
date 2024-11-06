@@ -6,12 +6,12 @@ const particleSketch = (p) => {
   let textOpacity = 0;
   let letters = [];
   let links = [
-    { letter: "J", url: "https://example.com/j", tooltip: "Página J" },
-    { letter: "U", url: "https://example.com/u", tooltip: "Página U" },
-    { letter: "A", url: "https://example.com/a", tooltip: "Página A" },
-    { letter: "N", url: "https://example.com/n", tooltip: "Página N" },
-    { letter: "E", url: "https://example.com/e", tooltip: "Página E" },
-    { letter: "S", url: "https://example.com/s", tooltip: "Página S" }
+    { letter: "J", url: "https://editor.p5js.org/ShadowjGames/full/fIQOZ1eUz", tooltip: "Aleatoriedad" },
+    { letter: "U", url: "https://editor.p5js.org/ShadowjGames/full/kmjQZ8CAT", tooltip: "Vectores" },
+    { letter: "A", url: "https://editor.p5js.org/ShadowjGames/full/ozWClCL5x", tooltip: "Fuerzas" },
+    { letter: "N", url: "https://example.com/n", tooltip: "Ondas" },
+    { letter: "E", url: "https://example.com/e", tooltip: "Partículas" },
+    { letter: "S", url: "https://example.com/s", tooltip: "Agentes Autónomos" }
   ];
   let activeTooltip = null;
 
