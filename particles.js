@@ -9,9 +9,9 @@ const particleSketch = (p) => {
     { letter: "J", url: "https://editor.p5js.org/ShadowjGames/full/fIQOZ1eUz", tooltip: "Aleatoriedad" },
     { letter: "U", url: "https://editor.p5js.org/ShadowjGames/full/kmjQZ8CAT", tooltip: "Vectores" },
     { letter: "A", url: "https://editor.p5js.org/ShadowjGames/full/ozWClCL5x", tooltip: "Fuerzas" },
-    { letter: "N", url: "https://example.com/n", tooltip: "Ondas" },
-    { letter: "E", url: "https://example.com/e", tooltip: "Partículas" },
-    { letter: "S", url: "https://example.com/s", tooltip: "Agentes Autónomos" }
+    { letter: "N", url: "https://editor.p5js.org/ShadowjGames/full/uRDz4fkYq", tooltip: "Ondas" },
+    { letter: "E", url: "https://editor.p5js.org/ShadowjGames/full/b2nVk9p9m", tooltip: "Partículas" },
+    { letter: "S", url: "https://editor.p5js.org/ShadowjGames/full/9m_UHPMuZ", tooltip: "Agentes Autónomos" }
   ];
   let activeTooltip = null;
 
@@ -25,6 +25,7 @@ const particleSketch = (p) => {
     p.clear();
 
     if (!showText && !explosionPhase) {
+      // Partículas de fondo
       if (p.mouseX >= 0 && p.mouseY >= 0) {
         particles.push(new Particle(p.mouseX, p.mouseY, p));
       }
@@ -39,6 +40,7 @@ const particleSketch = (p) => {
         }
       }
     } else if (explosionPhase) {
+      // Explosión de partículas
       for (let particle of particles) {
         particle.explode();
       }
@@ -48,40 +50,51 @@ const particleSketch = (p) => {
         explosionPhase = false;
         showText = true;
       }
-    } // Dentro de la sección de "showText" en p.draw()
-if (showText) {
-  textOpacity = Math.min(textOpacity + 3, 255);
-  
-  // Efecto de gradiente de color entre dos tonos
-  for (let i = 0; i < links.length; i++) {
-    let link = links[i];
-    let x = startX + i * spacing;
-    let y = centerY;
+    } else if (showText) {
+      // Aumentar opacidad del texto suavemente
+      textOpacity = Math.min(textOpacity + 3, 255);
 
-    // Interpolación de colores (degradado)
-    let color1 = p.color("#FE68B5"); // Color inicial
-    let color2 = p.color("#0CCBCF"); // Color final
-    let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
+      // Configuración de estilo de texto
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(150);
 
-    p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
-    p.stroke(255, 255, 255, 150); // Borde blanco semitransparente
-    p.strokeWeight(2); // Ancho del borde
-    p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5); // Tamaño variable para cada letra
-    p.textAlign(p.CENTER, p.CENTER);
+      // Configurar el espacio entre letras
+      let spacing = 120;
+      let startX = centerX - (spacing * (links.length - 1)) / 2;
 
-    // Sombra
-    p.push();
-    p.translate(5, 5); // Sombra desplazada
-    p.fill(0, 0, 0, textOpacity * 0.5); // Sombra negra semitransparente
-    p.noStroke();
-    p.text(link.letter, x, y);
-    p.pop();
+      // Efecto de gradiente y estilo para cada letra de "JUANES"
+      for (let i = 0; i < links.length; i++) {
+        let link = links[i];
+        let x = startX + i * spacing;
+        let y = centerY;
 
-    // Letra principal
-    p.text(link.letter, x, y); // Dibujar la letra con efectos
-  }
-}
+        // Gradiente de color
+        let color1 = p.color("#FE68B5");
+        let color2 = p.color("#0CCBCF");
+        let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
 
+        p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
+        p.stroke(255, 255, 255, 150); // Borde blanco semitransparente
+        p.strokeWeight(2); // Ancho del borde
+
+        // Animación de tamaño de letra
+        p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5);
+
+        // Sombra
+        p.push();
+        p.translate(5, 5);
+        p.fill(0, 0, 0, textOpacity * 0.5);
+        p.noStroke();
+        p.text(link.letter, x, y);
+        p.pop();
+
+        // Dibujar letra principal
+        p.text(link.letter, x, y);
+
+        // Guardar posición de cada letra para detección de clic
+        letters[i] = { x, y, link };
+      }
+    }
   };
 
   p.mousePressed = () => {
@@ -89,7 +102,7 @@ if (showText) {
       if (showText) {
         activeTooltip = null;
 
-        // Detectar si se hizo clic en alguna letra y activar tooltip
+        // Detectar si se hizo clic en alguna letra
         for (let letter of letters) {
           let d = p.dist(p.mouseX, p.mouseY, letter.x, letter.y);
           if (d < 60) {
@@ -98,7 +111,6 @@ if (showText) {
           }
         }
       } else if (!showText && !explosionPhase) {
-        // Solo activar la fase de explosión cuando "showText" está desactivado
         explosionPhase = true;
       }
     }
