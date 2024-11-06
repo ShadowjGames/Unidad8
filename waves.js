@@ -1,10 +1,11 @@
-// waves.js
+// waves.js optimizado
 
 const waveSketch = (p) => {
   let noiseMax = 1;
   let zoff = 0;
   let ca, cb;
   let ox, oy;
+  let colorFactor = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -16,18 +17,26 @@ const waveSketch = (p) => {
     ox = p.width / 2;
     oy = p.height;
     p.noFill();
+
+    // Establecemos una tasa de frames más baja
+    p.frameRate(30); // Se actualiza a 30 FPS en lugar de 60 FPS para reducir la carga.
   };
 
   p.draw = () => {
     p.background(0, 20);
 
-    const colorFactor = (Math.sin(zoff) + 1) / 2;
+    // Actualización del color menos frecuente (cada 10 frames)
+    if (p.frameCount % 10 === 0) {
+      colorFactor = (Math.sin(zoff) + 1) / 2;
+    }
     p.stroke(p.lerpColor(ca, cb, colorFactor));
 
     p.push();
     p.translate(ox, oy);
     p.beginShape();
-    for (let t = 0; t < 360; t++) {
+
+    // Menos vértices en el ciclo for para mejorar rendimiento
+    for (let t = 0; t < 360; t += 5) { // Cambiamos de 1 a 5 para reducir puntos
       let xoff = p.map(Math.cos(t), -1, 1, 0, noiseMax);
       let yoff = p.map(Math.sin(t), -1, 1, 0, noiseMax);
       let n = p.noise(xoff, yoff, zoff);
@@ -39,7 +48,8 @@ const waveSketch = (p) => {
     p.endShape(p.CLOSE);
     p.pop();
 
-    zoff += 0.003;
+    // Incremento de `zoff` más lento
+    zoff += 0.001; // Reducimos la velocidad de cambio para ahorrar procesamiento
   };
 
   p.windowResized = () => {
