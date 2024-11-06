@@ -4,6 +4,8 @@ const waveSketch = (p) => {
   let ca, cb;
   let centerX, centerY;
   let MAX_RADIUS;
+  let explosionPhase = false;
+  let textOpacity = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -19,7 +21,7 @@ const waveSketch = (p) => {
   p.draw = () => {
     p.clear();
 
-    if (!showText) {
+    if (!showText && !explosionPhase) {
       p.stroke(p.lerpColor(ca, cb, Math.abs(Math.sin(zoff * 100))));
       p.strokeWeight(2);
 
@@ -41,12 +43,26 @@ const waveSketch = (p) => {
       p.pop();
 
       zoff += 0.01;
+    } else if (explosionPhase) {
+      // Expandir rápidamente el radio de las ondas para simular explosión
+      MAX_RADIUS += 20;
+      if (MAX_RADIUS > Math.max(p.width, p.height) * 2) {
+        explosionPhase = false;
+        showText = true;
+      }
     } else {
-      // Mostrar "JUANES" en el centro de la pantalla
-      p.fill(255);
+      // Mostrar el texto con un degradado de opacidad
+      textOpacity = Math.min(textOpacity + 5, 255);
+      p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
       p.text("JUANES", centerX, centerY);
+    }
+  };
+
+  p.mousePressed = () => {
+    if (p.mouseButton === p.LEFT) {
+      explosionPhase = true;
     }
   };
 
