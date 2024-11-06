@@ -6,6 +6,7 @@ const waveSketch = (p) => {
   let MAX_RADIUS;
   let explosionPhase = false;
   let textOpacity = 0;
+  let hasShownText = false;  // Nueva variable para evitar múltiples renderizados de "JUANES"
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -70,18 +71,22 @@ const waveSketch = (p) => {
         explosionPhase = false;
         showText = true;
       }
-    } else {
-      // Mostrar el texto con un degradado de opacidad
+    } else if (showText && !hasShownText) {
+      // Mostrar el texto solo una vez al activar showText
       textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
       p.text("JUANES", centerX, centerY);
+
+      if (textOpacity >= 255) {
+        hasShownText = true; // Marca que ya se ha mostrado "JUANES"
+      }
     }
   };
 
   p.mousePressed = () => {
-    if (p.mouseButton === p.LEFT) {
+    if (p.mouseButton === p.LEFT && !showText && !explosionPhase) {
       explosionPhase = true;
     }
   };
