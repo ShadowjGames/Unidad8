@@ -21,75 +21,48 @@ const particleSketch = (p) => {
 
   p.draw = () => {
     p.clear();
+    textOpacity = Math.min(textOpacity + 3, 255);
 
-    if (!showText && !explosionPhase) {
-      if (p.mouseX >= 0 && p.mouseY >= 0) {
-        particles.push(new Particle(p.mouseX, p.mouseY, p));
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(150);
+
+    let spacing = 120;
+    let startX = centerX - (spacing * (links.length - 1)) / 2;
+
+    // Dibujar letras y detectar si el mouse está sobre alguna letra
+    let hoveredLetter = null;
+    for (let i = 0; i < links.length; i++) {
+      let link = links[i];
+      let x = startX + i * spacing;
+      let y = centerY;
+
+      let color1 = p.color("#FE68B5");
+      let color2 = p.color("#0CCBCF");
+      let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
+
+      p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
+      p.stroke(255, 255, 255, 150);
+      p.strokeWeight(2);
+
+      p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5);
+
+      p.push();
+      p.translate(5, 5);
+      p.fill(0, 0, 0, textOpacity * 0.5);
+      p.noStroke();
+      p.text(link.letter, x, y);
+      p.pop();
+
+      p.text(link.letter, x, y);
+
+      if (p.dist(p.mouseX, p.mouseY, x, y) < 60) {
+        hoveredLetter = { x, y, link };
       }
+    }
 
-      for (let i = particles.length - 1; i >= 0; i--) {
-        let particle = particles[i];
-        particle.update();
-        particle.display();
-
-        if (particle.isDead()) {
-          particles.splice(i, 1);
-        }
-      }
-    } else if (explosionPhase) {
-      for (let particle of particles) {
-        particle.explode();
-      }
-      particles = particles.filter(p => !p.isDead());
-
-      if (particles.length === 0) {
-        explosionPhase = false;
-        showText = true;
-        textOpacity = 0;
-      }
-    } else if (showText) {
-      textOpacity = Math.min(textOpacity + 3, 255);
-
-      p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(150);
-
-      let spacing = 120;
-      let startX = centerX - (spacing * (links.length - 1)) / 2;
-
-      for (let i = 0; i < links.length; i++) {
-        let link = links[i];
-        let x = startX + i * spacing;
-        let y = centerY;
-
-        let color1 = p.color("#FE68B5");
-        let color2 = p.color("#0CCBCF");
-        let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
-
-        p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
-        p.stroke(255, 255, 255, 150);
-        p.strokeWeight(2);
-
-        p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5);
-
-        p.push();
-        p.translate(5, 5);
-        p.fill(0, 0, 0, textOpacity * 0.5);
-        p.noStroke();
-        p.text(link.letter, x, y);
-        p.pop();
-
-        p.text(link.letter, x, y);
-
-        letters[i] = { x, y, link };
-      }
-
-      let hoveredLetter = letters.find(letter => p.dist(p.mouseX, p.mouseY, letter.x, letter.y) < 60);
-      if (hoveredLetter) {
-        activeTooltip = hoveredLetter;
-        displayTooltip(hoveredLetter.x, hoveredLetter.y - 100, hoveredLetter.link.tooltip);
-      } else {
-        activeTooltip = null;
-      }
+    // Mostrar la burbuja de tooltip si hay una letra seleccionada
+    if (hoveredLetter) {
+      displayTooltip(hoveredLetter.x, hoveredLetter.y - 100, hoveredLetter.link.tooltip);
     }
   };
 
@@ -97,7 +70,6 @@ const particleSketch = (p) => {
     p.push();
     p.rectMode(p.CENTER);
     p.textAlign(p.CENTER, p.CENTER);
-    p.noStroke();
 
     // Fondo con gradiente suave
     let gradColor1 = p.color("#FE68B5");
@@ -128,54 +100,8 @@ const particleSketch = (p) => {
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT && activeTooltip) {
       window.open(activeTooltip.link.url, "_blank");
-    } else if (p.mouseButton === p.LEFT && !showText && !explosionPhase) {
-      explosionPhase = true;
     }
   };
-
-  class Particle {
-    constructor(x, y, p) {
-      this.p = p;
-      this.pos = this.p.createVector(x, y);
-      this.vel = p5.Vector.random2D().mult(this.p.random(1, 3));
-      this.acc = p.createVector(0, 0.05);
-      this.size = this.p.random(15, 25);
-      this.lifespan = 200;
-
-      const symbolsAndColors = [
-        { symbol: '▲', color: p.color(0, 128, 0, 180) },
-        { symbol: '■', color: p.color(75, 0, 130, 180) },
-        { symbol: '●', color: p.color(255, 20, 147, 180) },
-        { symbol: '✖', color: p.color(0, 0, 205, 180) }
-      ];
-      let selected = symbolsAndColors[Math.floor(this.p.random(symbolsAndColors.length))];
-      this.symbol = selected.symbol;
-      this.color = selected.color;
-    }
-
-    update() {
-      this.vel.add(this.acc);
-      this.pos.add(this.vel);
-      this.lifespan -= 3;
-    }
-
-    explode() {
-      this.pos.add(this.vel.mult(1.1));
-      this.size *= 0.95;
-      this.lifespan -= 5;
-    }
-
-    display() {
-      this.p.fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.lifespan);
-      this.p.noStroke();
-      this.p.textSize(this.size);
-      this.p.text(this.symbol, this.pos.x, this.pos.y);
-    }
-
-    isDead() {
-      return this.lifespan <= 0 || this.size < 1;
-    }
-  }
 
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
