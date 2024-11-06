@@ -22,9 +22,7 @@ const particleSketch = (p) => {
   p.draw = () => {
     p.clear();
 
-    // Animación de partículas y transición a mostrar texto
     if (!showText && !explosionPhase) {
-      // Partículas de fondo
       if (p.mouseX >= 0 && p.mouseY >= 0) {
         particles.push(new Particle(p.mouseX, p.mouseY, p));
       }
@@ -39,49 +37,40 @@ const particleSketch = (p) => {
         }
       }
     } else if (explosionPhase) {
-      // Explosión de partículas
       for (let particle of particles) {
         particle.explode();
       }
       particles = particles.filter(p => !p.isDead());
 
-      // Finalizar fase de explosión y activar `showText`
       if (particles.length === 0) {
         explosionPhase = false;
         showText = true;
-        textOpacity = 0; // Reiniciar opacidad del texto
+        textOpacity = 0;
       }
     } else if (showText) {
-      // Aumentar opacidad del texto suavemente
       textOpacity = Math.min(textOpacity + 3, 255);
 
-      // Configuración de estilo de texto
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
 
-      // Configurar el espacio entre letras
       let spacing = 120;
       let startX = centerX - (spacing * (links.length - 1)) / 2;
 
-      // Dibujar letras con gradiente y animación
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let x = startX + i * spacing;
         let y = centerY;
 
-        // Gradiente de color
         let color1 = p.color("#FE68B5");
         let color2 = p.color("#0CCBCF");
         let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
 
         p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
-        p.stroke(255, 255, 255, 150); // Borde blanco semitransparente
-        p.strokeWeight(2); // Ancho del borde
+        p.stroke(255, 255, 255, 150);
+        p.strokeWeight(2);
 
-        // Animación de tamaño de letra
         p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5);
 
-        // Sombra
         p.push();
         p.translate(5, 5);
         p.fill(0, 0, 0, textOpacity * 0.5);
@@ -89,14 +78,11 @@ const particleSketch = (p) => {
         p.text(link.letter, x, y);
         p.pop();
 
-        // Dibujar letra principal
         p.text(link.letter, x, y);
 
-        // Guardar posición de cada letra para detección de clic y mostrar tooltip
         letters[i] = { x, y, link };
       }
 
-      // Mostrar burbuja de información si el mouse está cerca de una letra
       let hoveredLetter = letters.find(letter => p.dist(p.mouseX, p.mouseY, letter.x, letter.y) < 60);
       if (hoveredLetter) {
         activeTooltip = hoveredLetter;
@@ -108,32 +94,41 @@ const particleSketch = (p) => {
   };
 
   const displayTooltip = (x, y, text) => {
-    // Estilo de la burbuja
-    p.fill(255, 255, 255, 220);
-    p.stroke(0, 150);
-    p.strokeWeight(2);
+    p.push();
     p.rectMode(p.CENTER);
-
-    let bubbleWidth = p.textWidth(text) + 30;
-    let bubbleHeight = 40;
-
-    // Dibujar la burbuja de información
-    p.rect(x, y, bubbleWidth, bubbleHeight, 10);
-
-    // Dibujar el texto en la burbuja
-    p.fill(0);
-    p.noStroke();
-    p.textSize(18);
     p.textAlign(p.CENTER, p.CENTER);
+    p.noStroke();
+
+    // Fondo con gradiente suave
+    let gradColor1 = p.color("#FE68B5");
+    let gradColor2 = p.color("#0CCBCF");
+    for (let i = 0; i <= 15; i++) {
+      let inter = p.map(i, 0, 15, 0, 1);
+      let c = p.lerpColor(gradColor1, gradColor2, inter);
+      p.fill(c.levels[0], c.levels[1], c.levels[2], 180 - i * 12);
+      p.rect(x, y, p.textWidth(text) + 40 - i, 50 - i, 15);
+    }
+
+    // Sombra de la burbuja
+    p.fill(0, 0, 0, 80);
+    p.rect(x + 4, y + 4, p.textWidth(text) + 40, 50, 15);
+
+    // Triángulo tipo globo de diálogo
+    p.fill(gradColor1);
+    p.triangle(x - 15, y + 25, x + 15, y + 25, x, y + 45);
+
+    // Texto
+    p.fill(255);
+    p.textSize(18);
     p.text(text, x, y);
+
+    p.pop();
   };
 
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT && activeTooltip) {
-      // Abrir enlace de la burbuja activa
       window.open(activeTooltip.link.url, "_blank");
     } else if (p.mouseButton === p.LEFT && !showText && !explosionPhase) {
-      // Iniciar explosión si no se está mostrando el texto aún
       explosionPhase = true;
     }
   };
