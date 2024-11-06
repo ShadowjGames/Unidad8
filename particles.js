@@ -1,6 +1,5 @@
 const particleSketch = (p) => {
   let particles = [];
-  let showText = false;
   let centerX, centerY;
 
   p.setup = () => {
@@ -40,7 +39,7 @@ const particleSketch = (p) => {
 
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT) {
-      showText = true; // Activar el texto y detener partículas al hacer clic izquierdo
+      showText = true; // Cambiar la variable global para detener ambos efectos
     }
   };
 
@@ -50,15 +49,15 @@ const particleSketch = (p) => {
       this.pos = this.p.createVector(x, y);
       this.vel = p5.Vector.random2D().mult(this.p.random(1, 3));
       this.acc = p.createVector(0, 0.05);
-      this.size = this.p.random(15, 25); // Tamaño ajustado de los símbolos
-      this.lifespan = 200; // Tiempo de vida de la partícula
+      this.size = this.p.random(15, 25);
+      this.lifespan = 200;
 
-      // Definir símbolos y colores de PlayStation (ajustados)
+      // Definir símbolos y colores de PlayStation
       const symbolsAndColors = [
-        { symbol: '▲', color: p.color(0, 128, 0, 180) },       // Verde para Triángulo
-        { symbol: '■', color: p.color(75, 0, 130, 180) },      // Morado para Cuadrado
-        { symbol: '●', color: p.color(255, 20, 147, 180) },    // Rosa para Círculo
-        { symbol: '✖', color: p.color(0, 0, 205, 180) }        // Azul para X
+        { symbol: '▲', color: p.color(0, 128, 0, 180) },
+        { symbol: '■', color: p.color(75, 0, 130, 180) },
+        { symbol: '●', color: p.color(255, 20, 147, 180) },
+        { symbol: '✖', color: p.color(0, 0, 205, 180) }
       ];
       let selected = symbolsAndColors[Math.floor(this.p.random(symbolsAndColors.length))];
       this.symbol = selected.symbol;
@@ -68,14 +67,14 @@ const particleSketch = (p) => {
     update() {
       this.vel.add(this.acc);
       this.pos.add(this.vel);
-      this.lifespan -= 3; // Reducir gradualmente la opacidad
+      this.lifespan -= 3;
     }
 
     display() {
       this.p.fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.lifespan);
       this.p.noStroke();
       this.p.textSize(this.size);
-      this.p.text(this.symbol, this.pos.x, this.pos.y); // Dibujar el símbolo
+      this.p.text(this.symbol, this.pos.x, this.pos.y);
     }
 
     isDead() {
