@@ -48,19 +48,24 @@ const particleSketch = (p) => {
         showText = true;
       }
     } else {
+      // Ajustar opacidad del texto
       textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
 
-      // Dibujar cada letra con su posición
+      // Dibujar cada letra con posición
       letters = [];
       let spacing = 120;
       let startX = centerX - (spacing * (links.length - 1)) / 2;
+
+      // Crear cada letra con enlaces
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let x = startX + i * spacing;
         let y = centerY;
+
+        // Dibuja la letra y almacena su posición para el tooltip
         p.text(link.letter, x, y);
         letters.push({ x, y, letter: link.letter, link });
       }
@@ -97,7 +102,6 @@ const particleSketch = (p) => {
   };
 
   p.mouseReleased = () => {
-    // Abrir el enlace si el usuario suelta el mouse sobre la burbuja
     if (activeTooltip) {
       let d = p.dist(p.mouseX, p.mouseY, activeTooltip.x, activeTooltip.y - 100);
       if (d < 70) {
