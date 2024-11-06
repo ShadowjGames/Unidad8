@@ -44,15 +44,35 @@ const waveSketch = (p) => {
 
       zoff += 0.01;
     } else if (explosionPhase) {
-      // Expandir rápidamente el radio de las ondas para simular explosión
-      MAX_RADIUS += 20;
+      // Expandir y desvanecer las ondas para una transición suave
+      MAX_RADIUS += 10; // Expande las ondas progresivamente
+      let opacity = p.map(MAX_RADIUS, p.width * 0.8, Math.max(p.width, p.height) * 2, 255, 0);
+      p.stroke(p.red(cb), p.green(cb), p.blue(cb), opacity); // Gradualmente se hace transparente
+
+      p.push();
+      p.translate(centerX, centerY);
+      
+      p.beginShape();
+      for (let angle = 0; angle < 360; angle += 5) {
+        let xoff = p.map(p.cos(angle), -1, 1, 0, noiseMax);
+        let yoff = p.map(p.sin(angle), -1, 1, 0, noiseMax);
+        let n = p.noise(xoff, yoff, zoff);
+        
+        let radius = p.map(n, 0, 1, MAX_RADIUS * 0.3, MAX_RADIUS);
+        let x = radius * p.cos(angle);
+        let y = radius * p.sin(angle);
+        p.vertex(x, y);
+      }
+      p.endShape(p.CLOSE);
+      p.pop();
+
       if (MAX_RADIUS > Math.max(p.width, p.height) * 2) {
         explosionPhase = false;
         showText = true;
       }
     } else {
       // Mostrar el texto con un degradado de opacidad
-      textOpacity = Math.min(textOpacity + 5, 255);
+      textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
