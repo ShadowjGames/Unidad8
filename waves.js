@@ -1,37 +1,44 @@
 const waveSketch = (p) => {
-  let yValues = [];
-  let theta = 0;
-  let waveAmplitude = 75;
-  let waveFrequency = 0.05;
-  let explode = false;
+  let noiseMax = 1;
+  let zoff = 0;
+  let ca, cb;
+  let ox, oy;
+  let MAX;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    for (let x = 0; x < p.width; x += 10) {
-      yValues.push(0);
-    }
+    p.angleMode(p.DEGREES);
+    ca = p.color("#0CCBCFAA");  // Color inicial de las ondas
+    cb = p.color("#FE68B5AA");  // Color final de las ondas
+    ox = p.width / 2;           // Centro de las ondas en el ancho
+    oy = p.height;              // Centro de las ondas en el alto
+    MAX = p.width > p.height ? p.width : p.height;
+    p.noFill();
   };
 
   p.draw = () => {
     p.clear();
+    p.stroke(p.lerpColor(ca, cb, Math.abs(Math.sin(zoff * 100))));
+    p.push();
+    p.translate(ox, oy);
 
-    if (!explode) {
-      // Dibuja las ondas normales
-      p.noFill();
-      p.stroke(0, 100, 200, 150);
-      p.strokeWeight(2);
-      theta += 0.02;
-      let x = theta;
-      for (let i = 0; i < yValues.length; i++) {
-        yValues[i] = Math.sin(x) * waveAmplitude;
-        x += waveFrequency;
-      }
-      for (let x = 0; x < yValues.length; x++) {
-        p.ellipse(x * 10, p.height / 2 + yValues[x], 10, 10);
-      }
+    p.beginShape();
+    for (let t = 0; t < 360; t++) {
+      let xoff = p.map(p.cos(t), -1, 1, 0, noiseMax);
+      let yoff = p.map(p.sin(t), -1, 1, 0, noiseMax);
+      let n = p.noise(xoff, yoff, zoff);
+      let r = p.map(n, 0, 1, 0, p.height * 1.5);
+      let x = r * p.cos(t);
+      let y = r * p.sin(t);
+      p.vertex(x, y);
     }
+    p.endShape(p.CLOSE);
+    p.pop();
+
+    zoff += 0.005;  // Incremento para animar el ruido
   };
 
+  
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT) {
       explode = true;
@@ -40,6 +47,8 @@ const waveSketch = (p) => {
 
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    ox = p.width / 2;
+    oy = p.height;
   };
 };
 
