@@ -48,25 +48,23 @@ const particleSketch = (p) => {
         showText = true;
       }
     } else {
-      // Ajustar opacidad del texto
+      // Aumentar opacidad del texto suavemente
       textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
 
-      // Dibujar cada letra con posición
+      // Renderizar letras y guardar sus posiciones
       letters = [];
       let spacing = 120;
       let startX = centerX - (spacing * (links.length - 1)) / 2;
 
-      // Crear cada letra con enlaces
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let x = startX + i * spacing;
         let y = centerY;
 
-        // Dibuja la letra y almacena su posición para el tooltip
-        p.text(link.letter, x, y);
+        p.text(link.letter, x, y); // Renderizar la letra
         letters.push({ x, y, letter: link.letter, link });
       }
 
@@ -88,6 +86,8 @@ const particleSketch = (p) => {
     if (p.mouseButton === p.LEFT) {
       if (showText) {
         activeTooltip = null;
+
+        // Detectar si se hizo clic en alguna letra y activar tooltip
         for (let letter of letters) {
           let d = p.dist(p.mouseX, p.mouseY, letter.x, letter.y);
           if (d < 60) {
@@ -95,7 +95,8 @@ const particleSketch = (p) => {
             break;
           }
         }
-      } else {
+      } else if (!showText && !explosionPhase) {
+        // Solo activar la fase de explosión cuando "showText" está desactivado
         explosionPhase = true;
       }
     }
