@@ -1,85 +1,94 @@
-// particles.js
+// particles.js con animación de explosión
 
 const particleSketch = (p) => {
-  const symbols = ['X', '□', '○', '△'];
-  
-  class Particle {
-    constructor(x, y) {
-      this.position = p.createVector(x, y);
-      this.velocity = p5.Vector.random2D().mult(p.random(1, 3));
-      this.acceleration = p.createVector(0, 0);
-      this.lifespan = 255;
-      this.symbol = p.random(symbols);
-      this.color = p.color(p.random(100, 200), p.random(100, 200), p.random(200, 255));
-    }
-
-    applyForce(force) {
-      let f = force.copy();
-      f.div(1);
-      this.acceleration.add(f);
-    }
-
-    update() {
-      this.velocity.add(this.acceleration);
-      this.position.add(this.velocity);
-      this.acceleration.mult(0);
-      this.lifespan -= 2;
-    }
-
-    display() {
-      p.fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.lifespan);
-      p.noStroke();
-      p.textSize(20);
-      p.textAlign(p.CENTER, p.CENTER);
-      p.text(this.symbol, this.position.x, this.position.y);
-    }
-
-    isDead() {
-      return this.lifespan <= 0;
-    }
-  }
-
-  class ParticleSystem {
-    constructor() {
-      this.particles = [];
-    }
-
-    addParticle(x, y) {
-      this.particles.push(new Particle(x, y));
-    }
-
-    run() {
-      for (let i = this.particles.length - 1; i >= 0; i--) {
-        let particle = this.particles[i];
-        particle.update();
-        particle.display();
-        if (particle.isDead()) {
-          this.particles.splice(i, 1);
-        }
-      }
-    }
-  }
-
-  let ps;
+  let particles = [];
+  let explode = false;
+  let centerX, centerY;
+  let explosionTimer = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    ps = new ParticleSystem();
+    centerX = p.width / 2;
+    centerY = p.height / 2;
   };
 
   p.draw = () => {
     p.clear();
-    ps.run();
+    for (let particle of particles) {
+      particle.update();
+      particle.display();
+    }
+
+    // Si se activa la explosión, muestra el texto en el centro
+    if (explode && explosionTimer > 0) {
+      p.fill(255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(150);
+      p.text("JUANES", centerX, centerY);
+
+      // Reducimos el contador para detener la explosión después de unos frames
+      explosionTimer--;
+    }
   };
 
-  p.mouseMoved = () => {
-    ps.addParticle(p.mouseX, p.mouseY);
+  p.mousePressed = () => {
+    if (p.mouseButton === p.LEFT) {
+      explode = true;
+      explosionTimer = 60; // Tiempo que el texto permanecerá en pantalla
+      for (let particle of particles) {
+        particle.moveToCenter(centerX, centerY);
+      }
+    }
   };
+
+  p.mouseReleased = () => {
+    explode = false;
+    particles = []; // Reinicia las partículas después de la explosión
+    // Genera nuevas partículas
+    for (let i = 0; i < 100; i++) {
+      particles.push(new Particle(p.mouseX, p.mouseY, p));
+    }
+  };
+
+  class Particle {
+    constructor(x, y, p) {
+      this.p = p;
+      this.pos = this.p.createVector(x, y);
+      this.vel = p5.Vector.random2D().mult(this.p.random(2, 5));
+      this.symbols = ['X', '◯', '▢', '△'];
+      this.symbol = this.p.random(this.symbols);
+      this.size = this.p.random(15, 25);
+      this.target = this.p.createVector(centerX, centerY); // Punto de explosión
+    }
+
+    update() {
+      if (explode) {
+        // Las partículas se acercan al centro
+        let force = p5.Vector.sub(this.target, this.pos).mult(0.1);
+        this.vel.add(force);
+        this.vel.limit(5);
+      }
+      this.pos.add(this.vel);
+    }
+
+    moveToCenter(cx, cy) {
+      // Mueve la partícula hacia el centro
+      this.target.set(cx, cy);
+    }
+
+    display() {
+      this.p.fill(255);
+      this.p.textSize(this.size);
+      this.p.text(this.symbol, this.pos.x, this.pos.y);
+    }
+  }
 
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    centerX = p.width / 2;
+    centerY = p.height / 2;
   };
 };
 
-// Instancia para el contenedor de las partículas
+// Instancia para el contenedor de partículas
 new p5(particleSketch, "particle-canvas");
