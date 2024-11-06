@@ -77,5 +77,4 @@ const particleSketch = (p) => {
   };
 };
 
-// Crear instancia de p5 para las partículas
 new p5(particleSketch, "canvas-container");
