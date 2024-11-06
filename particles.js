@@ -2,6 +2,7 @@ const particleSketch = (p) => {
   let particles = [];
   let centerX, centerY;
   let explosionPhase = false;
+  let showText = false;
   let textOpacity = 0;
   let letters = [];
   let links = [
