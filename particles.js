@@ -56,18 +56,16 @@ const particleSketch = (p) => {
       this.size = this.p.random(20, 30); // Tamaño de los símbolos
       this.lifespan = 255; // Tiempo de vida de la partícula
 
-      // Colores de los botones de PlayStation: verde, rosa, azul, morado
-      this.colors = [
-        p.color(0, 255, 0),       // Verde
-        p.color(255, 0, 255),     // Rosa
-        p.color(0, 0, 255),       // Azul
-        p.color(128, 0, 128)      // Morado
+      // Definir símbolos y colores de PlayStation
+      const symbolsAndColors = [
+        { symbol: '▲', color: p.color(0, 255, 0) },       // Verde para Triángulo
+        { symbol: '■', color: p.color(128, 0, 128) },     // Morado para Cuadrado
+        { symbol: '●', color: p.color(255, 0, 255) },     // Rosa para Círculo
+        { symbol: '✖', color: p.color(0, 0, 255) }        // Azul para X
       ];
-      this.color = this.colors[Math.floor(this.p.random(this.colors.length))];
-
-      // Símbolos de PlayStation
-      this.symbols = ['▲', '■', '●', '✖'];
-      this.symbol = this.symbols[Math.floor(this.p.random(this.symbols.length))];
+      let selected = symbolsAndColors[Math.floor(this.p.random(symbolsAndColors.length))];
+      this.symbol = selected.symbol;
+      this.color = selected.color;
     }
 
     update() {
@@ -79,7 +77,6 @@ const particleSketch = (p) => {
         this.vel.add(this.acc); // Añadir aceleración en modo normal
       }
       this.pos.add(this.vel);
-      this.lifespan -= 5; // Disminuir la vida de la partícula
     }
 
     moveToCenter(cx, cy) {
@@ -88,10 +85,11 @@ const particleSketch = (p) => {
     }
 
     display() {
-      this.p.fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.lifespan);
+      // Dibujar el símbolo con el color específico y opacidad completa
+      this.p.fill(this.color);
       this.p.noStroke();
       this.p.textSize(this.size);
-      this.p.text(this.symbol, this.pos.x, this.pos.y); // Dibujar el símbolo en lugar de un círculo
+      this.p.text(this.symbol, this.pos.x, this.pos.y); // Dibujar el símbolo
     }
 
     isDead() {
