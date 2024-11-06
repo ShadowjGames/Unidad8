@@ -1,6 +1,8 @@
 const particleSketch = (p) => {
   let particles = [];
   let centerX, centerY;
+  let explosionPhase = false;
+  let textOpacity = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -11,26 +13,38 @@ const particleSketch = (p) => {
   p.draw = () => {
     p.clear();
 
-    if (!showText) {
-      // Crear partículas en la posición del mouse en cada frame
+    if (!showText && !explosionPhase) {
       if (p.mouseX >= 0 && p.mouseY >= 0) {
         particles.push(new Particle(p.mouseX, p.mouseY, p));
       }
 
-      // Actualizar y mostrar partículas
       for (let i = particles.length - 1; i >= 0; i--) {
         let particle = particles[i];
         particle.update();
         particle.display();
 
-        // Eliminar partículas cuando su tiempo de vida termina
         if (particle.isDead()) {
           particles.splice(i, 1);
         }
       }
+    } else if (explosionPhase) {
+      // Generar efecto de explosión en partículas
+      for (let particle of particles) {
+        particle.explode();
+      }
+      
+      // Reducir la cantidad de partículas para hacer la explosión más visible
+      particles = particles.filter(p => !p.isDead());
+
+      // Cuando se terminan las partículas, comenzar a mostrar el texto
+      if (particles.length === 0) {
+        explosionPhase = false;
+        showText = true;
+      }
     } else {
-      // Mostrar el texto en el centro de la pantalla
-      p.fill(255);
+      // Mostrar el texto con un degradado de opacidad
+      textOpacity = Math.min(textOpacity + 5, 255);
+      p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
       p.text("JUANES", centerX, centerY);
@@ -39,7 +53,7 @@ const particleSketch = (p) => {
 
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT) {
-      showText = true; // Cambiar la variable global para detener ambos efectos
+      explosionPhase = true;
     }
   };
 
@@ -52,7 +66,6 @@ const particleSketch = (p) => {
       this.size = this.p.random(15, 25);
       this.lifespan = 200;
 
-      // Definir símbolos y colores de PlayStation
       const symbolsAndColors = [
         { symbol: '▲', color: p.color(0, 128, 0, 180) },
         { symbol: '■', color: p.color(75, 0, 130, 180) },
@@ -68,6 +81,11 @@ const particleSketch = (p) => {
       this.vel.add(this.acc);
       this.pos.add(this.vel);
       this.lifespan -= 3;
+    }
+
+    explode() {
+      this.pos.add(this.vel.mult(5)); // Mayor velocidad para simular explosión
+      this.lifespan -= 10;
     }
 
     display() {
