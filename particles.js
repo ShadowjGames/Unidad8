@@ -1,5 +1,3 @@
-// particles.js
-
 const particleSketch = (p) => {
   const symbols = ['X', '□', '○', '△'];
   
