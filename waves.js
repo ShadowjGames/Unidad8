@@ -4,7 +4,6 @@ const waveSketch = (p) => {
   let ca, cb;
   let centerX, centerY;
   let MAX_RADIUS;
-  let explosionPhase = false;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -21,6 +20,7 @@ const waveSketch = (p) => {
     p.clear();
 
     if (!showText && !explosionPhase) {
+      // Dibujar ondas si no estamos en fase de explosión y `showText` es falso
       p.stroke(p.lerpColor(ca, cb, Math.abs(Math.sin(zoff * 100))));
       p.strokeWeight(2);
 
@@ -43,10 +43,10 @@ const waveSketch = (p) => {
 
       zoff += 0.01;
     } else if (explosionPhase) {
-      // Expandir y desvanecer las ondas para una transición suave
-      MAX_RADIUS += 10; // Expande las ondas progresivamente
+      // Expansión y desvanecimiento de ondas durante la fase de explosión
+      MAX_RADIUS += 10;
       let opacity = p.map(MAX_RADIUS, p.width * 0.8, Math.max(p.width, p.height) * 2, 255, 0);
-      p.stroke(p.red(cb), p.green(cb), p.blue(cb), opacity); // Gradualmente se hace transparente
+      p.stroke(p.red(cb), p.green(cb), p.blue(cb), opacity);
 
       p.push();
       p.translate(centerX, centerY);
@@ -67,14 +67,15 @@ const waveSketch = (p) => {
 
       if (MAX_RADIUS > Math.max(p.width, p.height) * 2) {
         explosionPhase = false;
-        showText = true; // Habilita `showText` pero sin dibujar el texto
+        showText = true; // Cambia `showText` a true, pero no dibuja el texto en `waves.js`
       }
     }
   };
 
   p.mousePressed = () => {
-    if (p.mouseButton === p.LEFT) {
+    if (p.mouseButton === p.LEFT && !explosionPhase) {
       explosionPhase = true;
+      MAX_RADIUS = p.width > p.height ? p.width * 0.8 : p.height * 0.8; // Reinicia MAX_RADIUS
     }
   };
 
