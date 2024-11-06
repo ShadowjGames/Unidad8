@@ -24,6 +24,7 @@ const particleSketch = (p) => {
   p.draw = () => {
     p.clear();
 
+    // Fase de partículas de entrada
     if (!showText && !explosionPhase) {
       if (p.mouseX >= 0 && p.mouseY >= 0) {
         particles.push(new Particle(p.mouseX, p.mouseY, p));
@@ -39,17 +40,20 @@ const particleSketch = (p) => {
         }
       }
     } else if (explosionPhase) {
+      // Fase de explosión de partículas
       for (let particle of particles) {
         particle.explode();
       }
       particles = particles.filter(p => !p.isDead());
 
+      // Una vez que termina la explosión, activamos el texto
       if (particles.length === 0) {
         explosionPhase = false;
         showText = true;
         textOpacity = 0;
       }
     } else if (showText) {
+      // Visualización gradual del texto "JUANES"
       textOpacity = Math.min(textOpacity + 3, 255);
 
       p.textAlign(p.CENTER, p.CENTER);
@@ -85,6 +89,7 @@ const particleSketch = (p) => {
         letters[i] = { x, y, link };
       }
 
+      // Mostrar tooltip solo cuando el texto está visible y el mouse está sobre una letra
       let hoveredLetter = letters.find(letter => p.dist(p.mouseX, p.mouseY, letter.x, letter.y) < 60);
       if (hoveredLetter && showText) {
         activeTooltip = hoveredLetter;
