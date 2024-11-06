@@ -48,39 +48,40 @@ const particleSketch = (p) => {
         explosionPhase = false;
         showText = true;
       }
-    } else {
-      // Aumentar opacidad del texto suavemente
-      textOpacity = Math.min(textOpacity + 3, 255);
-      p.fill(255, textOpacity);
-      p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(150);
+    } // Dentro de la sección de "showText" en p.draw()
+if (showText) {
+  textOpacity = Math.min(textOpacity + 3, 255);
+  
+  // Efecto de gradiente de color entre dos tonos
+  for (let i = 0; i < links.length; i++) {
+    let link = links[i];
+    let x = startX + i * spacing;
+    let y = centerY;
 
-      // Renderizar letras y guardar sus posiciones
-      letters = [];
-      let spacing = 120;
-      let startX = centerX - (spacing * (links.length - 1)) / 2;
+    // Interpolación de colores (degradado)
+    let color1 = p.color("#FE68B5"); // Color inicial
+    let color2 = p.color("#0CCBCF"); // Color final
+    let gradientColor = p.lerpColor(color1, color2, i / (links.length - 1));
 
-      for (let i = 0; i < links.length; i++) {
-        let link = links[i];
-        let x = startX + i * spacing;
-        let y = centerY;
+    p.fill(gradientColor.levels[0], gradientColor.levels[1], gradientColor.levels[2], textOpacity);
+    p.stroke(255, 255, 255, 150); // Borde blanco semitransparente
+    p.strokeWeight(2); // Ancho del borde
+    p.textSize(150 + Math.sin(p.frameCount * 0.05 + i) * 5); // Tamaño variable para cada letra
+    p.textAlign(p.CENTER, p.CENTER);
 
-        p.text(link.letter, x, y); // Renderizar la letra
-        letters.push({ x, y, letter: link.letter, link });
-      }
+    // Sombra
+    p.push();
+    p.translate(5, 5); // Sombra desplazada
+    p.fill(0, 0, 0, textOpacity * 0.5); // Sombra negra semitransparente
+    p.noStroke();
+    p.text(link.letter, x, y);
+    p.pop();
 
-      // Mostrar tooltip si está activo
-      if (activeTooltip) {
-        p.fill(50, 50, 255, 200);
-        p.noStroke();
-        p.ellipse(activeTooltip.x, activeTooltip.y - 100, 140, 50); // Burbuja
+    // Letra principal
+    p.text(link.letter, x, y); // Dibujar la letra con efectos
+  }
+}
 
-        p.fill(255);
-        p.textSize(20);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text(activeTooltip.link.tooltip, activeTooltip.x, activeTooltip.y - 100); // Texto del tooltip
-      }
-    }
   };
 
   p.mousePressed = () => {
