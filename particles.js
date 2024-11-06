@@ -22,6 +22,7 @@ const particleSketch = (p) => {
   p.draw = () => {
     p.clear();
 
+    // Animación de partículas y transición a mostrar texto
     if (!showText && !explosionPhase) {
       // Partículas de fondo
       if (p.mouseX >= 0 && p.mouseY >= 0) {
@@ -62,7 +63,7 @@ const particleSketch = (p) => {
       let spacing = 120;
       let startX = centerX - (spacing * (links.length - 1)) / 2;
 
-      // Efecto de gradiente y estilo para cada letra de "JUANES"
+      // Dibujar letras con gradiente y animación
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let x = startX + i * spacing;
@@ -91,38 +92,49 @@ const particleSketch = (p) => {
         // Dibujar letra principal
         p.text(link.letter, x, y);
 
-        // Guardar posición de cada letra para detección de clic
+        // Guardar posición de cada letra para detección de clic y mostrar tooltip
         letters[i] = { x, y, link };
       }
+
+      // Mostrar burbuja de información si el mouse está cerca de una letra
+      let hoveredLetter = letters.find(letter => p.dist(p.mouseX, p.mouseY, letter.x, letter.y) < 60);
+      if (hoveredLetter) {
+        activeTooltip = hoveredLetter;
+        displayTooltip(hoveredLetter.x, hoveredLetter.y - 100, hoveredLetter.link.tooltip);
+      } else {
+        activeTooltip = null;
+      }
     }
+  };
+
+  const displayTooltip = (x, y, text) => {
+    // Estilo de la burbuja
+    p.fill(255, 255, 255, 220);
+    p.stroke(0, 150);
+    p.strokeWeight(2);
+    p.rectMode(p.CENTER);
+
+    let bubbleWidth = p.textWidth(text) + 30;
+    let bubbleHeight = 40;
+
+    // Dibujar la burbuja de información
+    p.rect(x, y, bubbleWidth, bubbleHeight, 10);
+
+    // Dibujar el texto en la burbuja
+    p.fill(0);
+    p.noStroke();
+    p.textSize(18);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(text, x, y);
   };
 
   p.mousePressed = () => {
-    if (p.mouseButton === p.LEFT) {
-      if (showText) {
-        activeTooltip = null;
-
-        // Detectar si se hizo clic en alguna letra
-        for (let letter of letters) {
-          let d = p.dist(p.mouseX, p.mouseY, letter.x, letter.y);
-          if (d < 60) {
-            activeTooltip = { x: letter.x, y: letter.y, link: letter.link };
-            break;
-          }
-        }
-      } else if (!showText && !explosionPhase) {
-        explosionPhase = true;
-      }
-    }
-  };
-
-  p.mouseReleased = () => {
-    if (activeTooltip) {
-      let d = p.dist(p.mouseX, p.mouseY, activeTooltip.x, activeTooltip.y - 100);
-      if (d < 70) {
-        window.open(activeTooltip.link.url, "_blank");
-      }
-      activeTooltip = null;
+    if (p.mouseButton === p.LEFT && activeTooltip) {
+      // Abrir enlace de la burbuja activa
+      window.open(activeTooltip.link.url, "_blank");
+    } else if (p.mouseButton === p.LEFT && !showText && !explosionPhase) {
+      // Iniciar explosión si no se está mostrando el texto aún
+      explosionPhase = true;
     }
   };
 
