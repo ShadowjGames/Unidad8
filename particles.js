@@ -6,11 +6,11 @@ const particleSketch = (p) => {
   class Particle {
     constructor(x, y) {
       this.position = p.createVector(x, y);
-      this.velocity = p5.Vector.random2D().mult(p.random(1, 3)); // Movimiento en direcciones aleatorias
+      this.velocity = p5.Vector.random2D().mult(p.random(1, 3));
       this.acceleration = p.createVector(0, 0);
       this.lifespan = 255;
-      this.symbol = p.random(symbols); // Símbolo aleatorio de PlayStation
-      this.color = p.color(p.random(100, 200), p.random(100, 200), p.random(200, 255)); // Colores menos brillantes
+      this.symbol = p.random(symbols);
+      this.color = p.color(p.random(100, 200), p.random(100, 200), p.random(200, 255));
     }
 
     applyForce(force) {
@@ -73,7 +73,7 @@ const particleSketch = (p) => {
   };
 
   p.mouseMoved = () => {
-    ps.addParticle(p.mouseX, p.mouseY); // Generar partículas en la posición del mouse
+    ps.addParticle(p.mouseX, p.mouseY);
   };
 
   p.windowResized = () => {
@@ -81,5 +81,5 @@ const particleSketch = (p) => {
   };
 };
 
-// Crear instancia de p5 para las partículas
-new p5(particleSketch, "canvas-container");
+// Instancia para el contenedor de las partículas
+new p5(particleSketch, "particle-canvas");
