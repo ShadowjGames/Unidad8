@@ -3,6 +3,16 @@ const particleSketch = (p) => {
   let centerX, centerY;
   let explosionPhase = false;
   let textOpacity = 0;
+  let letters = [];
+  let links = [
+    { letter: "J", url: "https://example.com/j", tooltip: "Página J" },
+    { letter: "U", url: "https://example.com/u", tooltip: "Página U" },
+    { letter: "A", url: "https://example.com/a", tooltip: "Página A" },
+    { letter: "N", url: "https://example.com/n", tooltip: "Página N" },
+    { letter: "E", url: "https://example.com/e", tooltip: "Página E" },
+    { letter: "S", url: "https://example.com/s", tooltip: "Página S" }
+  ];
+  let activeTooltip = null;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -28,32 +38,72 @@ const particleSketch = (p) => {
         }
       }
     } else if (explosionPhase) {
-      // Generar efecto de explosión en partículas con desvanecimiento gradual
       for (let particle of particles) {
         particle.explode();
       }
-      
-      // Reducir la cantidad de partículas para hacer la explosión más visible
       particles = particles.filter(p => !p.isDead());
 
-      // Cuando se terminan las partículas, comenzar a mostrar el texto
       if (particles.length === 0) {
         explosionPhase = false;
         showText = true;
       }
     } else {
-      // Mostrar el texto con un degradado de opacidad
       textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
-      p.text("JUANES", centerX, centerY);
+
+      // Dibujar cada letra con su posición
+      letters = [];
+      let spacing = 120;
+      let startX = centerX - (spacing * (links.length - 1)) / 2;
+      for (let i = 0; i < links.length; i++) {
+        let link = links[i];
+        let x = startX + i * spacing;
+        let y = centerY;
+        p.text(link.letter, x, y);
+        letters.push({ x, y, letter: link.letter, link });
+      }
+
+      // Mostrar tooltip si está activo
+      if (activeTooltip) {
+        p.fill(50, 50, 255, 200);
+        p.noStroke();
+        p.ellipse(activeTooltip.x, activeTooltip.y - 100, 140, 50); // Burbuja
+
+        p.fill(255);
+        p.textSize(20);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text(activeTooltip.link.tooltip, activeTooltip.x, activeTooltip.y - 100); // Texto del tooltip
+      }
     }
   };
 
   p.mousePressed = () => {
     if (p.mouseButton === p.LEFT) {
-      explosionPhase = true;
+      if (showText) {
+        activeTooltip = null;
+        for (let letter of letters) {
+          let d = p.dist(p.mouseX, p.mouseY, letter.x, letter.y);
+          if (d < 60) {
+            activeTooltip = { x: letter.x, y: letter.y, link: letter.link };
+            break;
+          }
+        }
+      } else {
+        explosionPhase = true;
+      }
+    }
+  };
+
+  p.mouseReleased = () => {
+    // Abrir el enlace si el usuario suelta el mouse sobre la burbuja
+    if (activeTooltip) {
+      let d = p.dist(p.mouseX, p.mouseY, activeTooltip.x, activeTooltip.y - 100);
+      if (d < 70) {
+        window.open(activeTooltip.link.url, "_blank");
+      }
+      activeTooltip = null;
     }
   };
 
@@ -84,10 +134,9 @@ const particleSketch = (p) => {
     }
 
     explode() {
-      // Desvanecer y reducir tamaño de partículas durante la explosión
-      this.pos.add(this.vel.mult(1.1)); // Aumenta gradualmente la velocidad
-      this.size *= 0.95; // Reduce el tamaño gradualmente
-      this.lifespan -= 5; // Reduce la opacidad más lento para un desvanecimiento
+      this.pos.add(this.vel.mult(1.1));
+      this.size *= 0.95;
+      this.lifespan -= 5;
     }
 
     display() {
@@ -98,7 +147,7 @@ const particleSketch = (p) => {
     }
 
     isDead() {
-      return this.lifespan <= 0 || this.size < 1; // Verifica también el tamaño
+      return this.lifespan <= 0 || this.size < 1;
     }
   }
 
