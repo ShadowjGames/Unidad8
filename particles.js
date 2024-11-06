@@ -28,7 +28,7 @@ const particleSketch = (p) => {
         }
       }
     } else if (explosionPhase) {
-      // Generar efecto de explosión en partículas
+      // Generar efecto de explosión en partículas con desvanecimiento gradual
       for (let particle of particles) {
         particle.explode();
       }
@@ -43,7 +43,7 @@ const particleSketch = (p) => {
       }
     } else {
       // Mostrar el texto con un degradado de opacidad
-      textOpacity = Math.min(textOpacity + 5, 255);
+      textOpacity = Math.min(textOpacity + 3, 255);
       p.fill(255, textOpacity);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(150);
@@ -84,8 +84,10 @@ const particleSketch = (p) => {
     }
 
     explode() {
-      this.pos.add(this.vel.mult(5)); // Mayor velocidad para simular explosión
-      this.lifespan -= 10;
+      // Desvanecer y reducir tamaño de partículas durante la explosión
+      this.pos.add(this.vel.mult(1.1)); // Aumenta gradualmente la velocidad
+      this.size *= 0.95; // Reduce el tamaño gradualmente
+      this.lifespan -= 5; // Reduce la opacidad más lento para un desvanecimiento
     }
 
     display() {
@@ -96,7 +98,7 @@ const particleSketch = (p) => {
     }
 
     isDead() {
-      return this.lifespan <= 0;
+      return this.lifespan <= 0 || this.size < 1; // Verifica también el tamaño
     }
   }
 
