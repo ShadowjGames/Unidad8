@@ -1,5 +1,3 @@
-// waves.js
-
 let noiseMax = 1;
 let zoff = 0;
 let ca, cb;
